@@ -39,21 +39,17 @@ def GA_model(X_train,y_train,X_test,n):
     return(selector)
 
 #Model MLR
-def MLR_model(X_train,X_test,y_train):
+def MLR_model(X_train,y_train):
     MLR = LinearRegression()
     MLR = MLR.fit(X_train, y_train)
-    y_pred = MLR.predict(X_test)
-    y_pred_train = MLR.predict(X_train)
-    predictions['MLR'] = y_pred
+    
 
     return(MLR)
 
 #Model KNN
-def KNN_model(X_train,X_test,y_train, n_neighbors, metric):
+def KNN_model(X_train,y_train, n_neighbors, metric):
     KNN = KNeighborsClassifier()
     KNN = KNN.fit(X_train, y_train)
-    y_pred = KNN.predict(X_test)
-    y_pred_train = KNN.predict(X_train)
 
     reurn(KNN)
 
@@ -61,10 +57,6 @@ def KNN_model(X_train,X_test,y_train, n_neighbors, metric):
 def RF_model(X_train, X_test, y_train, n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features):
     RF = ensemble.RandomForestRegressor()
     RF = RF.fit(X_train, y_train)
-    y_pred = RF.predict(X_test)
-    y_pred_train = RF.predict(X_train)
-    predictions['RF'] = y_pred
-    #predictions['SVR'] = y_pred
     
     return RF
 
@@ -73,9 +65,6 @@ def RF_model(X_train, X_test, y_train, n_estimators, max_depth, min_samples_spli
 def SVR_model(X_train, X_test, y_train, kernel, C, epsilon):
     SVR = svm.SVR(kernel=kernel, C=C, epsilon=epsilon)
     SVR = SVR.fit(X_train, y_train)
-    y_pred = SVR.predict(X_test)
-    y_pred_train = SVR.predict(X_train)
-    
     return SVR
 
     
@@ -83,9 +72,6 @@ def SVR_model(X_train, X_test, y_train, kernel, C, epsilon):
 def DTR_model(X_train,X_test,y_train,criterion1, splitter1):
     DTR = tree.DecisionTreeRegressor(criterion=criterion1,splitter= splitter1)
     DTR = DTR.fit(X_train, y_train)
-    y_pred = DTR.predict(X_test)
-    y_pred_train = DTR.predict(X_train)
-
     return(DTR)
 
 
