@@ -96,6 +96,17 @@ plot_lm_4.axes[0].set_title('Residuals vs Leverage')
 plot_lm_4.axes[0].set_xlabel('Leverage')
 plot_lm_4.axes[0].set_ylabel('Standardized Residuals')
 
+# Ada to twój plot \/
+
+x = [i for i in range(len(y_pred))]
+plt.scatter(x,y_pred, color = 'red')
+plt.scatter(x,y_test, color = 'green')
+plt.xlabel("i'th value of predicted or true data")
+plt.ylabel("Value of explained variables")
+plt.show()
+
+
+
 def app(plot_1 = plot_lm_4):
 	#st.write('Na początku przeanalizujmy wykres korelacji pomiędzy zmiennymi.')
 	st.pyplot(plot_1)
