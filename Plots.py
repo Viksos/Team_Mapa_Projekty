@@ -21,9 +21,10 @@ import Data_analys
 
 
 
-file_name = 'dane.csv'
+#file_name = 'dane.csv'
 
-df = pd.read_csv(file_name) # to trzeba przenieść do Main
+df = Inputs.return_df() #pd.read_csv(file_name) # to trzeba przenieść do Main
+
 
 X_train, X_test, y_train, y_test = Data_analys.data_to_model(df)
 
@@ -31,33 +32,57 @@ if(len(X_train[0])>9):
     model_type = 'GA'
 
 
-
+var = Inputs.return_model_var()
+print(var)
+default_value= None
 #hyperparameters
-criterion,splitter = 'squared_error','best' #used when model_type is 'DTR'
+#criterion,splitter =var # 'squared_error','best' #used when model_type is 'DTR'
 
-kernel, C, epsilon = 'linear', 1, 10  #used when model_type is 'SVR'
+#kernel, C, epsilon = [*var, *([default_value] * (5 - len(var)))]  #used when model_type is 'SVR'
 
-n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features = 200, 20, 2, 2, 'sqrt' #used when model_type is 'RF'
+#n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features = [*var, *([default_value] * (5 - len(var)))]#used when model_type is 'RF'
 
-n_neighbors,metric = 5,'Euclidean' # used when model_type is 'KNN'
+#n_neighbors,metric = var[0],var[1] # used when model_type is 'KNN'
 
-n=2 # Used when database has more then 10 features
+#n=var[0] # Used when database has more then 10 features
 
 # To wszystko powyżej będzie znajdowało się na pierwszej stronie
+model_type = Inputs.return_model_type()
+
+if(model_type == 'DTR'):
+	criterion,splitter = var
+	    #model = Models.DTR_model(X_train,X_test,y_train,criterion,splitter)
+elif(model_type == 'SVR'):
+	kernel, C, epsilon = var
+#    model = Models.SVR_model(X_train, X_test, y_train, kernel, C, epsilon)
+elif(model_type == 'RF'):
+	n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features = var
+	#    model = Models.RF_model(X_train, X_test, y_train, n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features)
+elif(model_type == 'GA'):
+	n = var
+	#   model = Models.GA_model(X_train,y_train,X_test,n)
+	#elif(model_type == 'MLR'):
+
+	#	model = Models.MLR_model(X_train,y_train)
 
 
 
 def models(model_type):
+	#
 	if(model_type == 'DTR'):
-		#criterion,splitter = Inputs.app
+		#criterion,splitter = var
 	    model = Models.DTR_model(X_train,X_test,y_train,criterion,splitter)
 	elif(model_type == 'SVR'):
+		#kernel, C, epsilon = var
 	    model = Models.SVR_model(X_train, X_test, y_train, kernel, C, epsilon)
 	elif(model_type == 'RF'):
+		#n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features = var
 	    model = Models.RF_model(X_train, X_test, y_train, n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features)
 	elif(model_type == 'GA'):
+		#n = var
 	    model = Models.GA_model(X_train,y_train,X_test,n)
 	elif(model_type == 'MLR'):
+
 		model = Models.MLR_model(X_train,y_train)
 
 	return(model)
@@ -175,11 +200,17 @@ plt.ylabel("Value of explained variables")
 plt.show()
 '''
 
-#print('RMSE = ',mean_squared_error(y_test, y_pred,squared=False),' R^2 = ', r2_score(y_test,y_pred))
-def app(X_test = X_test, y_test = y_test):
-	model_type = st.selectbox('Choose model : ',['DTR','SVR','MLR','GA','RF'])
+
+
+def app(X_test = X_test, y_test = y_test, df = df):
+
+
+	model_type = Inputs.return_model_type()
 	model = models(model_type)
 	data_type = st.selectbox('Choose type of data to plot :',['Test','Train']) 
+
+	y_pred = model.predict(X_test)
+
 	if(model_type == 'DTR'):
 		st.write('For DTR model William\'s plot do\'t exist.')
 	else:
@@ -188,9 +219,10 @@ def app(X_test = X_test, y_test = y_test):
 
 		else:
 			hi,std_res1,Cooks_distance,num_of_parameters,y_pred = parameters_to_plot(X_train,y_train,model)
-		print('hi = ',hi,' \n st_res',std_res1,'\n cook',Cooks_distance,'\n num of pa',num_of_parameters,'\n y_pred:',y_pred,'\n y_test ',y_test)
+
 		a = st.number_input('Plot range from:',value = -(max(std_res1)+0.5*max(std_res1)))
 		b = st.number_input("To :", value = (max(std_res1)+0.5*max(std_res1)))
 		plot_1 = Williams_plot(hi,std_res1,Cooks_distance,num_of_parameters,a,b,model_type)
 		st.pyplot(plot_1)
-		
+
+	#st.write('RMSE = ',mean_squared_error(y_test, y_pred,squared=False),' R^2 = ', r2_score(y_test,y_pred))
