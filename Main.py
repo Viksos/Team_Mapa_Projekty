@@ -11,7 +11,7 @@ st.title("Projekt zespołu MAPA")
 app.add_page('Inputs',Inputs.app)
 app.add_page("Początkowa analiza",First_analys.app)
 #app.add_page("Support Vectior Regression", Support_Vector_Regression.app)
-app.add_page("Wykrsy",Plots.app)
+app.add_page("Wykresy",Plots.app)
 
 
 
