@@ -14,5 +14,4 @@ app.add_page("Początkowa analiza",First_analys.app)
 app.add_page("Plots",Plots.app)
 
 
-
 app.run()

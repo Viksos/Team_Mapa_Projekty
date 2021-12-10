@@ -48,21 +48,25 @@ def MLR_model(X_train,y_train):
 
 #Model KNN
 def KNN_model(X_train,y_train, n_neighbors, metric):
-    KNN = KNeighborsClassifier()
+    KNN = KNeighborsRegressor()
     KNN = KNN.fit(X_train, y_train)
 
-    reurn(KNN)
+    return(KNN)
 
 # Model RF
-def RF_model(X_train, X_test, y_train, n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features):
-    RF = ensemble.RandomForestRegressor()
+def RF_model(X_train, y_train, n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features):
+    RF = ensemble.RandomForestRegressor(n_estimators=n_estimators,
+                                        max_depth=max_depth,
+                                        min_samples_split=min_samples_split,
+                                        min_samples_leaf=min_samples_leaf,
+                                        max_features=max_features)
     RF = RF.fit(X_train, y_train)
     
     return RF
 
 
 # Model SVR
-def SVR_model(X_train, X_test, y_train, kernel, C, epsilon):
+def SVR_model(X_train, y_train, kernel, C, epsilon):
     SVR = svm.SVR(kernel=kernel, C=C, epsilon=epsilon)
     SVR = SVR.fit(X_train, y_train)
     return SVR

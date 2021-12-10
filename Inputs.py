@@ -34,32 +34,35 @@ def app():
 
 	if(model_type == 'DTR'):
 
-		criterion,splitter = st.selectbox('Citerion',["squared_error", "friedman_mse", "absolute_error", "poisson"]),st.selectbox('splitter',["best","random"])
-
+        criterion,splitter = st.selectbox('Citerion',["squared_error", "friedman_mse", "absolute_error", "poisson"]),st.selectbox('splitter',["best","random"])
 		model_var = [criterion,splitter]
 
-	elif(model_type == 'SVR'):
+
+    elif(model_type == 'SVR'):
 
 		kernel, C, epsilon = st.selectbox('Kernel',['linear', 'poly', 'rbf', 'sigmoid', 'precomputed']),st.number_input('C',value = 1),st.number_input('epsilon',value = 10)
 	
 		model_var = [kernel, C, epsilon]
 
-	elif(model_type == 'MLR'):
+        return(kernel, C, epsilon)
 
-		n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features = st.number_input('n_estimators :' ,value = 200),st.number_input('max_depth :' ,value = 20), st.number_input('min_samples_split :' ,value = 2), st.number_input('min_samples_leaf :' ,value = 2),st.selectbox('max_features',['sqrt','auto','log2'])
+    elif(model_type == 'MLR'):
+        #TODO: tu są złe parametry dla tego modelu - to są z RF, a nie z liniowego
+        n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features = st.number_input('n_estimators :' ,value = 200),st.number_input('max_depth :' ,value = 20), st.number_input('min_samples_split :' ,value = 2), st.number_input('min_samples_leaf :' ,value = 2),st.selectbox('max_features',['sqrt','auto','log2'])
 
 		model_var = [n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features]
 
-	elif(model_type == 'KNN'):
-		n_neighbors,metric = st.number_input('n_neighbors',value = 5),st.text_input('Metric','Euclidean')
 
+    elif(model_type == 'KNN'):
+        n_neighbors,metric = st.number_input('n_neighbors',value = 5),st.text_input('Metric','Euclidean')
 
 		model_var = [n_neighbors,metric]
 
-	elif(model_type == 'GA'):
-		n = st.number_input('Number of parametrs',value = 2)
 
-		model_var = [n]
+    elif(model_type == 'GA'):
+        n = st.number_input('Number of parametrs',value = 2)
+
+        model_var = [n]
 
 
 
@@ -69,3 +72,4 @@ def return_model_type():
 	return(model_type)
 def return_model_var():
 	return(model_var)
+
