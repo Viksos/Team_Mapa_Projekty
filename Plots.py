@@ -19,9 +19,12 @@ import Models, Inputs
 
 import Data_analys
 
-file_name = 'dane.csv'
 
-df = pd.read_csv(file_name)  # to trzeba przenieść do Main
+
+#file_name = 'dane.csv'
+
+df = Inputs.return_df() #pd.read_csv(file_name) # to trzeba przenieść do Main
+
 
 X_train, X_test, y_train, y_test = Data_analys.data_to_model(df)
 
@@ -29,36 +32,60 @@ X_train, X_test, y_train, y_test = Data_analys.data_to_model(df)
 if (len(X_train[0]) > 9):
     model_type = 'GA'
 
-# hyperparameters
-criterion, splitter = 'squared_error', 'best'  # used when model_type is 'DTR'
+var = Inputs.return_model_var()
+print(var)
+default_value= None
+#hyperparameters
+#criterion,splitter =var # 'squared_error','best' #used when model_type is 'DTR'
 
-kernel, C, epsilon = 'linear', 1, 10  # used when model_type is 'SVR'
+#kernel, C, epsilon = [*var, *([default_value] * (5 - len(var)))]  #used when model_type is 'SVR'
 
-n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features = 200, 20, 2, 2, 'sqrt'  # used when model_type is 'RF'
+#n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features = [*var, *([default_value] * (5 - len(var)))]#used when model_type is 'RF'
 
-n_neighbors, metric = 5, 'Euclidean'  # used when model_type is 'KNN'
+#n_neighbors,metric = var[0],var[1] # used when model_type is 'KNN'
 
-n = 2  # Used when database has more then 10 features
-
+#n=var[0] # Used when database has more then 10 features
 
 # To wszystko powyżej będzie znajdowało się na pierwszej stronie
+model_type = Inputs.return_model_type()
+
+if(model_type == 'DTR'):
+	criterion,splitter = var
+	    #model = Models.DTR_model(X_train,X_test,y_train,criterion,splitter)
+elif(model_type == 'SVR'):
+	kernel, C, epsilon = var
+#    model = Models.SVR_model(X_train, X_test, y_train, kernel, C, epsilon)
+elif(model_type == 'RF'):
+	n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features = var
+	#    model = Models.RF_model(X_train, X_test, y_train, n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features)
+elif(model_type == 'GA'):
+	n = var
+	#   model = Models.GA_model(X_train,y_train,X_test,n)
+	#elif(model_type == 'MLR'):
+
+	#	model = Models.MLR_model(X_train,y_train)
 
 
 def models(model_type):
-    if (model_type == 'DTR'):
-        # criterion,splitter = Inputs.app
-        model = Models.DTR_model(X_train, X_test, y_train, criterion, splitter)
-    elif (model_type == 'SVR'):
-        model = Models.SVR_model(X_train, y_train, kernel, C, epsilon)
-    elif (model_type == 'RF'):
-        model = Models.RF_model(X_train, y_train, n_estimators, max_depth, min_samples_split, min_samples_leaf,
-                                max_features)
-    elif (model_type == 'GA'):
-        model = Models.GA_model(X_train, y_train, X_test, n)
-    elif (model_type == 'MLR'):
-        model = Models.MLR_model(X_train, y_train)
+    #
+	if(model_type == 'DTR'):
+		#criterion,splitter = var
+	    model = Models.DTR_model(X_train,X_test,y_train,criterion,splitter)
+	elif(model_type == 'SVR'):
+		#kernel, C, epsilon = var
+	    model = Models.SVR_model(X_train, X_test, y_train, kernel, C, epsilon)
+	elif(model_type == 'RF'):
+		#n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features = var
+	    model = Models.RF_model(X_train, X_test, y_train, n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features)
+	elif(model_type == 'GA'):
+		#n = var
+	    model = Models.GA_model(X_train,y_train,X_test,n)
+	elif(model_type == 'MLR'):
 
-    return (model)
+		model = Models.MLR_model(X_train,y_train)
+
+	return(model)
+
 
 
 def leverage(X_test):
@@ -197,4 +224,86 @@ def app(X_test=X_test, y_test=y_test):
         b = st.number_input("To :", value=(max(std_res1) + 0.5 * max(std_res1)))
         plot_1 = Williams_plot(hi, std_res1, Cooks_distance, num_of_parameters, a, b, model_type)
         st.pyplot(plot_1)
+
+#Parameters for Test data
+def parameters_to_plot(X_test,y_test,model):
+	num_of_parameters = len(X_test[0]) # Num paramer for standars residual 
+
+	y_pred = model.predict(X_test)
+	hi= leverage(X_test)
+	std_res1 = std_res(y_pred,y_test,hi,num_of_parameters)
+
+	y_pred_train = model.predict(X_train)
+	res, MSExn = MSE_calc(y_pred,y_test)
+	MSE = (1/(len(y_pred)))*sum(MSExn)
+	Cooks_distance = Cook_distance(res,MSE,num_of_parameters,hi)
+
+	return(hi,std_res1,Cooks_distance,num_of_parameters,y_pred)
+
+
+def Williams_plot(hi,std_res1,Cooks_distance,num_of_parameters,a,b,model_type):
+	plot_lm_4 = plt.figure()
+	plt.scatter(hi, std_res1, alpha=0.5)
+	if(model_type == "DTR"):
+		pass
+	else:
+		plot_lm_4.axes[0].axhline(y=0, color='grey', linestyle='dashed')
+	sns.regplot(hi, std_res1,ci=False,line_kws={'color': 'red', 'lw': 1, 'alpha': 0.8})
+
+	leverage_top_3 = np.flip(np.argsort(Cooks_distance), 0)[:3]
+	for i in leverage_top_3:
+		plot_lm_4.axes[0].annotate(i,xy=(hi[i],std_res1[i]))
+
+
+	plot_lm_4.axes[0].set_xlim(0, max(hi)+0.01)
+	plot_lm_4.axes[0].set_ylim(a,b)
+	plot_lm_4.axes[0].set_title('Residuals vs Leverage')
+	plot_lm_4.axes[0].set_xlabel('Leverage')
+	plot_lm_4.axes[0].set_ylabel('Standardized Residuals')
+
+
+	graph(lambda x: np.sqrt((0.5 * num_of_parameters * (1 - x)) / x), np.linspace(0.001, max(hi), 50), 'Cook\'s distance') # 0.5 line
+	graph(lambda x: np.sqrt((1 * num_of_parameters * (1 - x)) / x), np.linspace(0.001, max(hi), 50)) # 1 line
+	plot_lm_4.legend(loc='upper right')
+
+	return(plot_lm_4)
+
+
+
+# Ada to twój plot \/
+'''
+x = [i for i in range(len(y_pred))]
+plt.scatter(x,y_pred, color = 'red')
+plt.scatter(x,y_test, color = 'green')
+plt.xlabel("i'th value of predicted or true data")
+plt.ylabel("Value of explained variables")
+plt.show()
+'''
+
+
+
+def app(X_test = X_test, y_test = y_test, df = df):
+
+
+	model_type = Inputs.return_model_type()
+	model = models(model_type)
+	data_type = st.selectbox('Choose type of data to plot :',['Test','Train']) 
+
+	y_pred = model.predict(X_test)
+
+	if(model_type == 'DTR'):
+		st.write('For DTR model William\'s plot do\'t exist.')
+	else:
+		if(data_type == 'test'):
+			hi,std_res1,Cooks_distance,num_of_parameters,y_pred = parameters_to_plot(X_test,y_test,model)
+
+		else:
+			hi,std_res1,Cooks_distance,num_of_parameters,y_pred = parameters_to_plot(X_train,y_train,model)
+
+		a = st.number_input('Plot range from:',value = -(max(std_res1)+0.5*max(std_res1)))
+		b = st.number_input("To :", value = (max(std_res1)+0.5*max(std_res1)))
+		plot_1 = Williams_plot(hi,std_res1,Cooks_distance,num_of_parameters,a,b,model_type)
+		st.pyplot(plot_1)
+
+	#st.write('RMSE = ',mean_squared_error(y_test, y_pred,squared=False),' R^2 = ', r2_score(y_test,y_pred))
 
