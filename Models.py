@@ -1,4 +1,3 @@
-
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn import tree
@@ -14,9 +13,7 @@ from genetic_selection import GeneticSelectionCV
 from sklearn.metrics import r2_score
 
 
-
-
-def GA_model(X_train,y_train,X_test,n):
+def GA_model(X_train,y_train,n):
     estimator = linear_model.LinearRegression()
 
     selector = GeneticSelectionCV(estimator,cv=5,
@@ -38,6 +35,7 @@ def GA_model(X_train,y_train,X_test,n):
     selector = selector.fit(X_train, y_train)
     return(selector)
 
+
 #Model MLR
 def MLR_model(X_train,y_train):
     MLR = LinearRegression()
@@ -46,12 +44,14 @@ def MLR_model(X_train,y_train):
 
     return(MLR)
 
+
 #Model KNN
 def KNN_model(X_train,y_train, n_neighbors, metric):
     KNN = KNeighborsRegressor()
     KNN = KNN.fit(X_train, y_train)
 
     return(KNN)
+
 
 # Model RF
 def RF_model(X_train, y_train, n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features):
@@ -73,7 +73,7 @@ def SVR_model(X_train, y_train, kernel, C, epsilon):
 
     
 # Model DTR
-def DTR_model(X_train,X_test,y_train,criterion1, splitter1):
+def DTR_model(X_train,y_train,criterion1, splitter1):
     DTR = tree.DecisionTreeRegressor(criterion=criterion1,splitter= splitter1)
     DTR = DTR.fit(X_train, y_train)
     return(DTR)
