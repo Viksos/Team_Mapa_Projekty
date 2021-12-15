@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from PIL import Image
+import Data_analys
+import Inputs
 
 
 def app():
@@ -12,6 +14,10 @@ def app():
 	#spr_df = Cl.Cleaner(df)
 
 	st.write('Na początku przeanalizujmy wykres korelacji pomiędzy zmiennymi.')
+	df = Inputs.return_df()
+	fig = Data_analys.correlation(df)
+	st.pyplot(fig)
+	st.write(Data_analys.important_value(df))
 
 '''
 	st.image('correlation_heatmap.png')
