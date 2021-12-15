@@ -40,7 +40,7 @@ def app():
 		st.write(dtr_text)
 
 	elif(model_type == 'SVR'):
-		kernel, C, epsilon = st.selectbox('kernel',['linear', 'poly', 'rbf', 'sigmoid', 'precomputed']),st.number_input('C',value = 1),st.number_input('epsilon',value = 10)
+		kernel, C, epsilon = st.selectbox('kernel',['linear', 'poly', 'rbf', 'sigmoid']),st.number_input('C',value = 1),st.number_input('epsilon',value = 10)
 		model_var = [kernel, C, epsilon]
 		st.write(svr_text)
 
