@@ -45,9 +45,6 @@ def app():
 		st.write(svr_text)
 
 	elif(model_type == 'MLR'):
-		#TODO: tu są złe parametry dla tego modelu - to są z RF, a nie z liniowego
-		n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features = st.number_input('n_estimators :' ,value = 200),st.number_input('max_depth :' ,value = 20), st.number_input('min_samples_split :' ,value = 2), st.number_input('min_samples_leaf :' ,value = 2),st.selectbox('max_features',['sqrt','auto','log2'])
-		model_var = [n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features]
 		st.write(mlr_text)
 
 	elif(model_type == 'KNN'):
@@ -55,7 +52,7 @@ def app():
 		model_var = [n_neighbors,metric]
 		st.write(knn_text)
 
-	elif (model_type == 'rF'):
+	elif (model_type == 'RF'):
 		n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features = st.number_input('n_estimators :', value=200), \
 																					 st.number_input('max_depth :', value=20), \
 																					 st.number_input('min_samples_split :', value=2), \
@@ -106,7 +103,7 @@ svr_text = """>More details about available SVR hyperparameters:
 - **C**: float - Regularization parameter. The strength of the regularization is inversely proportional to C. Must be strictly positive. The penalty is a squared l2 penalty.
 - **epsilon**: float - Epsilon in the epsilon-SVR model. It specifies the epsilon-tube within which no penalty is associated in the training loss function with points predicted within a distance epsilon from the actual value."""
 
-mlr_text = """>More details about available MLR hyperparameters:"""
+mlr_text = """There is no hyperparameters for Linear model"""
 
 knn_text = """>More details about available KNN hyperparameters:
 - **n_neighbors** : Number of neighbors to use by default for kneighbors queries.

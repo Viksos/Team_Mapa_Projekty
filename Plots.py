@@ -15,7 +15,8 @@ import streamlit as st
 from sklearn.metrics import mean_squared_error, r2_score
 
 
-import Models, Inputs
+import Models, Inputs, Equations
+
 import Data_analys
 
 
@@ -171,6 +172,9 @@ def app(X_test = X_test, y_test = y_test, df = df):
 	st.write("The model has been fitted, see the results on the test and train set below:")
 	scores = print_scores(model, X_train, y_train, X_test, y_test)
 	st.dataframe(scores)
+
+	if st.checkbox("Model's equation"):
+		Equations.get_equation(model_type, model)
 
 	st.markdown("---")
 	st.header("Results visualization on the plots")
