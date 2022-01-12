@@ -174,7 +174,7 @@ def app(X_test = X_test, y_test = y_test, df = df):
 	st.dataframe(scores)
 
 	if st.checkbox("Model's equation"):
-		Equations.get_equation(model_type, model)
+		Equations.get_equation(model_type, model, df)
 
 	st.markdown("---")
 	st.header("Results visualization on the plots")

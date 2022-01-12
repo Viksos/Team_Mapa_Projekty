@@ -15,7 +15,7 @@ def data_to_model(df):
 
 	predictions = pd.DataFrame() 
 	
-	X, y = df.drop(columns=['y']).to_numpy(), df['y'].to_numpy()
+	X, y = df.iloc[:, 1:-1].to_numpy(), df['y'].to_numpy()
 
 	scaler = StandardScaler()
 
