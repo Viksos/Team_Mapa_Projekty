@@ -31,10 +31,10 @@ def important_value(df):
 	return(correlation.tail(n=1).to_numpy()[0])	
 
 
-def correlation(df):
+def correlation(df, color):
 	fig, ax = plt.subplots()
 	corr = df.corr()
-	sns.heatmap(corr,annot = True, cmap = 'rainbow')
+	sns.heatmap(corr,annot = True, cmap = color)
 	plt.title('Features Correlating ')
 	return(fig)
 

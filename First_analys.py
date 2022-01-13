@@ -14,8 +14,9 @@ def app():
 	#spr_df = Cl.Cleaner(df)
 
 	st.write('Na początku przeanalizujmy wykres korelacji pomiędzy zmiennymi.')
+	color = st.selectbox('Wybierz kolor : ', ['Greys', 'Purples', 'Blues', 'Greens', 'Oranges', 'Reds'])
 	df = Inputs.return_df()
-	fig = Data_analys.correlation(df)
+	fig = Data_analys.correlation(df, color)
 	st.pyplot(fig)
 	st.write(Data_analys.important_value(df))
 

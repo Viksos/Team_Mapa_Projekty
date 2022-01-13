@@ -152,6 +152,15 @@ def predictions_plot(X, y, model):
 	return st.bar_chart(predictions)
 
 
+def predictions_plot2(X, y, model):
+	predictions = model.predict(X)
+	fig = plt.figure(figsize=(10, 4))
+	plt.scatter(predictions, y)
+	plt.title("Actual vs predicted")
+
+	return st.pyplot(fig)
+
+
 def print_scores(model, X_train, y_train, X_test, y_test):
 	train_pred = model.predict(X_train)
 	test_pred = model.predict(X_test)
@@ -184,8 +193,10 @@ def app(X_test = X_test, y_test = y_test, df = df):
 	st.markdown("##### Comparison of predicted value with actual values")
 	if (data_type == 'Train'):
 		predictions_plot(X_train, y_train, model)
+		predictions_plot2(X_train, y_train, model)
 	else:
 		predictions_plot(X_test, y_test, model)
+		predictions_plot2(X_test, y_test, model)
 
 	#Williams plot
 	st.markdown("##### Williams plot")
