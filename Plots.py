@@ -143,27 +143,32 @@ def Williams_plot(hi,std_res1,Cooks_distance,num_of_parameters,a,b,model_type):
 	return(plot_lm_4)
 
 
-def predictions_plot(X, y, model):
-	predictions = model.predict(X)
-	predictions_diff = predictions - y
-	predictions = pd.DataFrame([y, predictions_diff])
-	predictions = predictions.T.rename(columns={0:'Actual value', 1:'Difference with predicted'})
+def predictions_plot(X, y, model, data_type):
 
-	return st.bar_chart(predictions)
+	def add_data_to_plot(X, y, color, label):
+		predictions = model.predict(X)
+		plt.scatter(predictions, y, color=color, label=label)
+
+		#add trendline
+		trend_coef = np.polyfit(predictions, y, 1)
+		trend = np.poly1d(trend_coef)
+		plt.plot(predictions, trend(predictions), "k-")
 
 
-def predictions_plot2(X, y, model):
-	predictions = model.predict(X)
 	fig = plt.figure(figsize=(10, 4))
-	plt.scatter(predictions, y)
 	plt.title("Actual vs predicted")
 	plt.xlabel("Predicted")
 	plt.ylabel("Actual")
 
-	#add the trendline
-	trend_coef = np.polyfit(predictions, y, 1)
-	trend = np.poly1d(trend_coef)
-	plt.plot(predictions, trend(predictions), "r-")
+
+	if type(X) is list:
+		add_data_to_plot(X[1], y[1], "tab:blue", label='Train')
+		add_data_to_plot(X[0], y[0], "tab:red", label='Test')
+
+	else:
+		add_data_to_plot(X, y, "tab:blue", label=data_type)
+
+	plt.legend()
 
 	return st.pyplot(fig)
 
@@ -177,7 +182,7 @@ def print_scores(model, X_train, y_train, X_test, y_test):
 	return scores
 
 
-def app(X_test = X_test, y_test = y_test, df = df):
+def app():
 
 	model_type = Inputs.return_model_type()
 	var = Inputs.return_model_var()
@@ -194,16 +199,16 @@ def app(X_test = X_test, y_test = y_test, df = df):
 
 	st.markdown("---")
 	st.header("Results visualization on the plots")
-	data_type = st.selectbox('Choose type of data to plot :',['Test','Train'])
+	data_type = st.selectbox('Choose type of data to plot :',['Test','Train','Test&Train'])
 
 	#predicted vs actual values plot
 	st.markdown("##### Comparison of predicted value with actual values")
 	if (data_type == 'Train'):
-		predictions_plot(X_train, y_train, model)
-		predictions_plot2(X_train, y_train, model)
+		predictions_plot(X_train, y_train, model, data_type)
+	elif (data_type == 'Test'):
+		predictions_plot(X_test, y_test, model, data_type)
 	else:
-		predictions_plot(X_test, y_test, model)
-		predictions_plot2(X_test, y_test, model)
+		predictions_plot([X_test, X_train], [y_test, y_train], model, data_type)
 
 	#Williams plot
 	st.markdown("##### Williams plot")
