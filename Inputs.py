@@ -28,7 +28,7 @@ def app():
 	st.markdown("---")
 	st.header("Choose Model")
 	st.markdown(text1)
-	model_type = st.selectbox('Choose model : ',['DTR','SVR','MLR','GA','RF'])
+	model_type = st.selectbox('Choose model : ',['DTR','KNN','SVR','MLR','GA','RF'])
 
 	st.markdown("---")
 	st.header("Choose Hyperparameters")
