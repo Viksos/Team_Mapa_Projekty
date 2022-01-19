@@ -39,7 +39,9 @@ def models(model_type, var):
 	elif(model_type == 'GA'):
 		model = Models.GA_model(X_train,y_train, *var)
 	elif(model_type == 'MLR'):
-		model = Models.MLR_model(X_train,y_train)
+		model = Models.MLR_model(X_train, y_train)
+	elif(model_type == 'KNN'):
+		model = Models.KNN_model(X_train, y_train, *var)
 
 	return(model)
 
