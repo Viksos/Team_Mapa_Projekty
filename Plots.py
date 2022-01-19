@@ -157,6 +157,13 @@ def predictions_plot2(X, y, model):
 	fig = plt.figure(figsize=(10, 4))
 	plt.scatter(predictions, y)
 	plt.title("Actual vs predicted")
+	plt.xlabel("Predicted")
+	plt.ylabel("Actual")
+
+	#add the trendline
+	trend_coef = np.polyfit(predictions, y, 1)
+	trend = np.poly1d(trend_coef)
+	plt.plot(predictions, trend(predictions), "r-")
 
 	return st.pyplot(fig)
 
