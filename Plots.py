@@ -176,8 +176,8 @@ def predictions_plot(X, y, model, data_type):
 def print_scores(model, X_train, y_train, X_test, y_test):
 	train_pred = model.predict(X_train)
 	test_pred = model.predict(X_test)
-	test_scores = [mean_squared_error(y_train, train_pred), r2_score(y_train, train_pred)]
-	train_scores = [mean_squared_error(y_test, test_pred), r2_score(y_test, test_pred)]
+	train_scores = [mean_squared_error(y_train, train_pred), r2_score(y_train, train_pred)]
+	test_scores = [mean_squared_error(y_test, test_pred), r2_score(y_test, test_pred)]
 	scores = pd.DataFrame([test_scores, train_scores], columns=['RMSE', 'R2 Score'], index=['Test', 'Train'])
 	return scores
 
