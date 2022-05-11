@@ -40,7 +40,6 @@ def GA_model(X_train,y_train,n):
 def MLR_model(X_train,y_train):
     MLR = LinearRegression()
     MLR = MLR.fit(X_train, y_train)
-    
 
     return(MLR)
 

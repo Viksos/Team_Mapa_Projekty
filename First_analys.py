@@ -4,7 +4,13 @@ import matplotlib.pyplot as plt
 from PIL import Image
 import Data_analys
 import Inputs
-
+import plotly.figure_factory as ff
+import numpy as np
+import bootstrapped.bootstrap as bs
+import bootstrapped.stats_functions as bs_stats
+from sklearn.model_selection import KFold
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
 
 def app():
 
@@ -13,12 +19,110 @@ def app():
 
 	#spr_df = Cl.Cleaner(df)
 
-	st.write('Na początku przeanalizujmy wykres korelacji pomiędzy zmiennymi.')
-	color = st.selectbox('Wybierz kolor : ', ['Greys', 'Purples', 'Blues', 'Greens', 'Oranges', 'Reds'])
-	df = Inputs.return_df()
+
+
+
+	df = Inputs.return_df().iloc[:,1:]
+
+	st.write('Data loaded:')
+	st.dataframe(df)
+	st.markdown("---")
+
+	st.write('General statistics about the data')
+	st.write(df.describe())
+	st.markdown("---")
+
+	st.write('Data distribution')
+	df_dist = df.iloc[:,:-1]
+	fig = ff.create_distplot([df_dist[c] for c in df_dist.columns], df_dist.columns)
+	st.plotly_chart(fig)
+	st.markdown("---")
+
+	st.write('Correlation between variables')
+	color = st.selectbox('Choose color : ', ['Greys', 'Purples', 'Blues', 'Greens', 'Oranges', 'Reds'])
 	fig = Data_analys.correlation(df, color)
 	st.pyplot(fig)
 	st.write(Data_analys.important_value(df))
+
+
+	st.markdown("---")
+	st.write('Bootstrapped mean and standard deviation')
+	result = pd.DataFrame({'Mean': [], 'Bootstrapped mean': [], 'Lower mean':[], 'Upper mean':[],
+						   'Std': [], 'Bootstrapped std': [], 'Lower std':[], 'Upper std':[]})
+	for col in df.columns[2:]:
+		col = np.array(df[col])
+		col_mean = col.mean()
+		col_bs_mean = bs.bootstrap(col, stat_func=bs_stats.mean).value
+		col_bs_mean_up = bs.bootstrap(col, stat_func=bs_stats.mean).upper_bound
+		col_bs_mean_low = bs.bootstrap(col, stat_func=bs_stats.mean).lower_bound
+		col_std = col.std()
+		col_bs_std = bs.bootstrap(col, stat_func=bs_stats.std).value
+		col_bs_std_up = bs.bootstrap(col, stat_func=bs_stats.std).upper_bound
+		col_bs_std_low = bs.bootstrap(col, stat_func=bs_stats.std).lower_bound
+		col_result = pd.Series([col_mean, col_bs_mean, col_bs_mean_low, col_bs_mean_up,
+								col_std, col_bs_std, col_bs_std_low, col_bs_std_up], index=result.columns)
+		result = result.append(col_result, ignore_index=True)
+	current_index = [i for i in result.index]
+	result = result.rename(index=dict(zip(current_index, df.columns[1:])))
+	st.write(result)
+	st.markdown("---")
+
+
+	st.write('Duplex')
+
+	def d(lst_1: list, lst_2: list):
+		'''
+		Return value of euclidean distance(ED)
+
+		@param lst_1: list of first vector
+		@param lst_2: list of second vector
+		'''
+		lst_1 = np.array(lst_1)
+		lst_2 = np.array(lst_2)
+		lst_1 = lst_1[~np.isnan(lst_1)]
+		lst_2 = lst_2[~np.isnan(lst_2)]
+		print('lst1', lst_1)
+		print('lst2', lst_2)
+		print('diff', lst_1 - lst_2)
+		print('sum', sum((np.array(lst_1) - np.array(lst_2)) ** 2))
+		return (np.sqrt(sum((np.array(lst_1) -
+							 np.array(lst_2)) ** 2)))
+
+	def duplex(df):
+		'''
+		Return two data frame that are split based on duplex algorythm
+		@param: df where all values are numbers
+		'''
+		lst = df.values.tolist()
+		LHS = []
+		RHS = []
+		#print('lst:', lst)
+		for i in lst:
+			ed = 0
+			for j in lst:
+				#print('ed:', ed)
+				#print('j:', j)
+				#print('i:', i)
+				#print('d(i, j:', d(i, j))
+				if (ed < d(i, j)):  # to find greatest ED
+					ed = d(i, j)
+
+					nd = j
+			LHS.append(i)
+			RHS.append(nd)
+			lst.remove(i)
+			lst.remove(j)
+		df_1 = pd.DataFrame(LHS, columns=df.columns)
+		df_2 = pd.DataFrame(RHS, columns=df.columns)
+		return ([df_1, df_2])
+
+	le = LabelEncoder()
+	df = pd.read_excel('Desc_Matrix.xlsx', skiprows=[0])
+	df['NP'] = le.fit_transform(df['NP'])
+	df1, df2 = duplex(df)
+	st.write(df1)
+	st.write(df2)
+
 
 '''
 	st.image('correlation_heatmap.png')

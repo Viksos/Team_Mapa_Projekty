@@ -2,7 +2,7 @@ import streamlit as st
 import Data_analys
 import pandas as pd 
 
-file_name = 'dane.csv'
+file_name = 'dane2.csv'
 
 df ,model_var, model_type = pd.read_csv(file_name),['squared_error','best'],0#,'DTR'
 
