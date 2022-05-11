@@ -13,6 +13,7 @@ from genetic_selection import GeneticSelectionCV
 from sklearn.metrics import r2_score
 import streamlit as st
 from sklearn.metrics import mean_squared_error, r2_score
+import plotly.express as px
 
 
 import Models, Inputs, Equations
@@ -131,6 +132,8 @@ def Williams_plot(hi,std_res1,Cooks_distance,num_of_parameters,a,b,model_type):
 		plot_lm_4.axes[0].annotate(i,xy=(hi[i],std_res1[i]))
 
 
+	plot_lm_4.axes[0].plot([max(hi), max(hi)], [a, b], label='h critical')
+
 	plot_lm_4.axes[0].set_xlim(0, max(hi)+0.01)
 	plot_lm_4.axes[0].set_ylim(a,b)
 	plot_lm_4.axes[0].set_title('Residuals vs Leverage')
@@ -145,34 +148,44 @@ def Williams_plot(hi,std_res1,Cooks_distance,num_of_parameters,a,b,model_type):
 	return(plot_lm_4)
 
 
-def predictions_plot(X, y, model, data_type):
-
-	def add_data_to_plot(X, y, color, label):
-		predictions = model.predict(X)
-		plt.scatter(predictions, y, color=color, label=label)
-
-		#add trendline
-		trend_coef = np.polyfit(predictions, y, 1)
-		trend = np.poly1d(trend_coef)
-		plt.plot(predictions, trend(predictions), "k-")
-
-
-	fig = plt.figure(figsize=(10, 4))
-	plt.title("Actual vs predicted")
-	plt.xlabel("Predicted")
-	plt.ylabel("Actual")
-
-
+def predictions_plot(X, y, model, visuals):
 	if type(X) is list:
-		add_data_to_plot(X[1], y[1], "tab:blue", label='Train')
-		add_data_to_plot(X[0], y[0], "tab:red", label='Test')
+		X_test, X_train = X
+		y_test, y_train = y
+		predictions_train = model.predict(X_train)
+		predictions_test = model.predict(X_test)
+
+		df_test = pd.DataFrame({'Predicted':predictions_test, 'Actual':y_test})
+		df_test['Type'] = "Test"
+		df_train = pd.DataFrame({'Predicted':predictions_train, 'Actual':y_train})
+		df_train['Type'] = "Train"
+		indexes = df[['Unnamed: 0', 'y']].rename(columns={'Unnamed: 0': 'Index'})
+		plot_data = pd.concat([df_test, df_train])
+		plot_data = plot_data.merge(indexes, how='left', left_on='Actual', right_on='y', copy=False).drop(['y'], axis=1)
+		print(plot_data.columns)
+
+		fig = px.scatter(plot_data,
+						 x='Predicted', y='Actual',
+						 title="Predicted vs Actual",
+						 trendline="ols", color='Type',
+						 opacity=0.6, trendline_scope = 'trace',
+						 color_discrete_sequence=[visuals['points_color'], visuals['points_color2']],
+						 symbol_sequence=[visuals['points_shape']],
+						 hover_data=['Index'])
+		fig.update_layout(font_family=visuals['font_type'], font_size=visuals['font_size'])
 
 	else:
-		add_data_to_plot(X, y, "tab:blue", label=data_type)
+		predictions = model.predict(X)
+		plot_data = {'Predicted':predictions, 'Actual':y}
+		fig = px.scatter(plot_data,
+						 x='Predicted', y='Actual',
+						 title="Predicted vs Actual",
+						 trendline="ols",
+						 color_discrete_sequence=[visuals['points_color']],
+						 symbol_sequence=[visuals['points_shape']])
+		fig.update_layout(font_family=visuals['font_type'], font_size=visuals['font_size'])
 
-	plt.legend()
-
-	return st.pyplot(fig)
+	return st.plotly_chart(fig)
 
 
 def print_scores(model, X_train, y_train, X_test, y_test):
@@ -203,14 +216,31 @@ def app():
 	st.header("Results visualization on the plots")
 	data_type = st.selectbox('Choose type of data to plot :',['Test','Train','Test&Train'])
 
+
+	#customizing the look of plots
+	if st.checkbox("Adjust the look of plots"):
+		font_size = st.select_slider('Choose the font size :', [12, 18, 24, 30])
+		font_type = st.selectbox('Choose the font type :', ['Consolas', 'Times New Roman', 'Calibri', 'Comic Sans MS'])
+		points_shape = st.selectbox('Choose the shape of data points :', ['circle', 'diamond', 'x', 'star'])
+		points_color = st.color_picker('Choose the color :')
+		visuals = {'font_size':font_size, 'font_type':font_type, 'points_shape':points_shape, 'points_color':points_color}
+
+		if data_type == 'Test&Train':
+			points_color2 = st.color_picker('Choose the second color :')
+			visuals['points_color2'] = points_color2
+	else:
+		visuals = {'font_size':18, 'font_type':'Calibri', 'points_shape':'circle', 'points_color':'#1f77b4', 'points_color2':'#d62728'}
+
+
 	#predicted vs actual values plot
 	st.markdown("##### Comparison of predicted value with actual values")
 	if (data_type == 'Train'):
-		predictions_plot(X_train, y_train, model, data_type)
+		predictions_plot(X_train, y_train, model, visuals)
 	elif (data_type == 'Test'):
-		predictions_plot(X_test, y_test, model, data_type)
+		predictions_plot(X_test, y_test, model, visuals)
 	else:
-		predictions_plot([X_test, X_train], [y_test, y_train], model, data_type)
+		predictions_plot([X_test, X_train], [y_test, y_train], model, visuals)
+
 
 	#Williams plot
 	st.markdown("##### Williams plot")
@@ -226,7 +256,17 @@ def app():
 		a = st.number_input('Plot range from:',value = -(max(std_res1)+0.5*max(std_res1)))
 		b = st.number_input("To :", value = (max(std_res1)+0.5*max(std_res1)))
 		plot_1 = Williams_plot(hi,std_res1,Cooks_distance,num_of_parameters,a,b,model_type)
+		plot_1.savefig('Williams_plot.')
 		st.pyplot(plot_1)
+
+		with open('Williams_plot.png', 'rb') as file:
+			btn = st.download_button(
+				label="Download image",
+				data=file,
+				file_name='Williams_plot.png',
+				mime="image/png"
+			)
+
 
 	#st.write('RMSE = ',mean_squared_error(y_test, y_pred,squared=False),' R^2 = ', r2_score(y_test,y_pred))
 
